@@ -8,6 +8,11 @@ packages = [{include = "aharas_de3"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+kaggle = "^1.6.6"
+sqlalchemy = "^2.0.28"
+pandas = "^2.2.1"
+python-dotenv = "^1.0.1"
+psycopg2 = "^2.9.9"
 
 
 [build-system]

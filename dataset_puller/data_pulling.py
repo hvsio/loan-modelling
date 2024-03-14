@@ -10,7 +10,7 @@ api = KaggleApi()
 
 try:
     api.authenticate()
-    api.dataset_download_files('vikasukani/loan-eligible-dataset', './data', unzip=True)
+    api.dataset_download_files('vikasukani/loan-eligible-dataset', '/tmp/data', unzip=True)
 except Exception as error:
     print(f"Couldn't pull the dataset: {error}")
 

@@ -1,7 +1,14 @@
 FROM python:3.8
-WORKDIR /scripts
-COPY . /scripts
-ADD requirements.txt .
-RUN pip install -r requirements.txt
+WORKDIR /app
+
 RUN mkdir /tmp/data
-CMD ["python", "./data_pulling.py"]
+RUN mkdir /root/.kaggle 
+
+ADD ./dataset_puller/source .
+COPY ./kaggle.json /root/.kaggle/kaggle.json
+COPY ./.env ./.env 
+
+RUN pip install -r requirements.txt
+RUN chmod 600 /root/.kaggle/kaggle.json
+
+CMD ["python3", "data_pulling.py"]

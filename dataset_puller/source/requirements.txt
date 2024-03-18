@@ -2,3 +2,4 @@ pandas
 kaggle
 sqlalchemy
 python-dotenv
+psycopg2

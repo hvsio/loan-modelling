@@ -1,0 +1,4 @@
+*/__pycache__
+.env
+kaggle.json
+todo.md

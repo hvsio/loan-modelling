@@ -1,7 +1,7 @@
 FROM python:3.8
 WORKDIR /app
 
-ADD ./data_modifier/source .
+ADD ./docker-images/data_modifier/source .
 COPY ./.env ./.env 
 
 RUN pip install -r requirements.txt

@@ -1,12 +1,11 @@
 import logging
-from datetime import datetime, timedelta
-from airflow import DAG
-from airflow.operators.bash_operator import BashOperator
-from airflow.operators.docker_operator import DockerOperator
-from airflow.operators.python_operator import BranchPythonOperator
-from airflow.operators.dummy_operator import DummyOperator
-from dotenv import find_dotenv, load_dotenv
 import os
+from datetime import datetime, timedelta
+
+from airflow.operators.docker_operator import DockerOperator
+from dotenv import find_dotenv, load_dotenv
+
+from airflow import DAG
 
 logger = logging.getLogger('airflowLogger')
 
@@ -20,7 +19,7 @@ default_args = {
     'email_on_failure': False,
     'email_on_retry': False,
     'retries': 1,
-    'retry_delay': timedelta(minutes=5)
+    'retry_delay': timedelta(minutes=5),
 }
 
 with DAG(
@@ -32,30 +31,30 @@ with DAG(
         task_id='database_creator',
         image='h4sio/database_creator3.1:1.0.0',
         mount_tmp_dir=False,
-        auto_remove="force",
+        auto_remove='force',
         env_file='/.env',
         command="echo 'Execution started {{ ds_nodash }}'",
-        dag=dag
+        dag=dag,
     )
 
     t2 = DockerOperator(
         task_id='dataset_puller',
         image='h4sio/dataset_puller3.1:1.0.0',
         mount_tmp_dir=False,
-        auto_remove="force",
+        auto_remove='force',
         env_file='/.env',
         command="echo 'Execution started {{ ds_nodash }}'",
-        dag=dag
+        dag=dag,
     )
 
     t3 = DockerOperator(
         task_id='data_modifier',
         image='h4sio/data_modifier3.1:1.0.0',
         mount_tmp_dir=False,
-        auto_remove="force",
+        auto_remove='force',
         env_file='/.env',
         command="echo 'Execution started {{ ds_nodash }}'",
-        dag=dag
+        dag=dag,
     )
 
 t1 >> t2 >> t3

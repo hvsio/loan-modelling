@@ -1,20 +1,34 @@
-from sqlalchemy import Boolean, Column, ForeignKeyConstraint, Integer, MetaData, Sequence, String, Table
+from sqlalchemy import (Boolean, Column, ForeignKeyConstraint, Integer,
+                        MetaData, Sequence, String, Table)
 
-def create_tables(schema_name): 
+
+def create_tables(schema_name):
     try:
         metadata = MetaData(schema=schema_name)
 
         Table(
-            "property_area",
+            'property_area',
             metadata,
-            Column('id', Integer, Sequence('property_id_seq', start=1, increment=1), nullable=False, primary_key=True),
+            Column(
+                'id',
+                Integer,
+                Sequence('property_id_seq', start=1, increment=1),
+                nullable=False,
+                primary_key=True,
+            ),
             Column('property_area', String(10), nullable=False),
         )
 
         Table(
-            "customers",
+            'customers',
             metadata,
-            Column('id', Integer, nullable=False, primary_key=True, autoincrement=True),
+            Column(
+                'id',
+                Integer,
+                nullable=False,
+                primary_key=True,
+                autoincrement=True,
+            ),
             Column('gender', String(6), nullable=True),
             Column('married', Boolean, nullable=True),
             Column('graduated', Boolean, nullable=True),
@@ -26,7 +40,7 @@ def create_tables(schema_name):
         )
 
         Table(
-            "loans",
+            'loans',
             metadata,
             Column('loan_id', String(8), nullable=False, primary_key=True),
             Column('loan_amount', Integer, nullable=True),
@@ -58,10 +72,10 @@ def create_tables(schema_name):
         )
 
         Table(
-            "loan_status_prediction",
+            'loan_status_prediction',
             metadata,
             Column('id', Integer, primary_key=True),
-            Column('loan_status', String(1), nullable=True)
+            Column('loan_status', String(1), nullable=True),
         )
 
         return metadata

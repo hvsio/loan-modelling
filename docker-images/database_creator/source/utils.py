@@ -9,7 +9,7 @@ from sqlalchemy_utils import create_database, database_exists
 
 
 @contextmanager
-def get_db_connection(force_create: False): #-> tuple[Engine, Connection]:
+def get_db_connection(force_create: False):   # -> tuple[Engine, Connection]:
     """First creation of job database based on .env values.
     As a context manager allow to execute statements with created engine and connection
     and ensures disposal of resources afterwards.

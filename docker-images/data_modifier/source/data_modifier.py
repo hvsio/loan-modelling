@@ -1,11 +1,12 @@
-import pandas as pd
-from sqlalchemy import create_engine
-from dotenv import find_dotenv, load_dotenv
-import os
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import text
 import logging
-from utils import conver_to_bool_cols, prepare_id_columns, rename_columns, set_fk
+import os
+
+import pandas as pd
+from dotenv import find_dotenv, load_dotenv
+from sqlalchemy import create_engine, text
+from sqlalchemy.exc import SQLAlchemyError
+from utils import (conver_to_bool_cols, prepare_id_columns, rename_columns,
+                   set_fk)
 
 load_dotenv(find_dotenv())
 
@@ -24,34 +25,42 @@ loans_table = os.environ.get('loans_table')
 
 dimension_tables = {
     customer_table: {
-        "columns": ["gender", "married", "dependents", 
-                    "graduated", "self_employed", 
-                    "applicant_income", "coapplicant_income",
-                    "credit_history", "customer_id"],
-        "fk": "customer_id"
+        'columns': [
+            'gender',
+            'married',
+            'dependents',
+            'graduated',
+            'self_employed',
+            'applicant_income',
+            'coapplicant_income',
+            'credit_history',
+            'customer_id',
+        ],
+        'fk': 'customer_id',
     },
     loan_status_table: {
-        "columns": ["loan_status", "prediction_id"],
-        "fk": "prediction_id"
+        'columns': ['loan_status', 'prediction_id'],
+        'fk': 'prediction_id',
     },
     property_table: {
-        "columns": ["property_area", "property_area_id"],
-        "fk": "property_area_id"
-    }
+        'columns': ['property_area', 'property_area_id'],
+        'fk': 'property_area_id',
+    },
 }
 
 try:
     engine = create_engine(db_url, echo=False)
     with engine.begin() as connection:
         logging.info('Connected to the db...')
-        for type in ["train", "test"]:
+        for type in ['train', 'test']:
             logging.info(f'Attempting creating star schema in {type} dataset.')
             fks = [entry['fk'] for entry in dimension_tables.values()]
             schema_name = os.environ.get(f'schema_name_{type}')
             lakehouse_name = os.environ.get(f'lakehouse_{type}_name')
 
             df = pd.read_sql(
-                text(f"SELECT * FROM public.{lakehouse_name}"), connection)
+                text(f'SELECT * FROM public.{lakehouse_name}'), connection
+            )
             logging.info(f'Size of data to be normalized: {len(df)} rows')
 
             df[fks] = 0
@@ -66,7 +75,7 @@ try:
                 if table_name == property_table:
                     dim_table.drop_duplicates(inplace=True, ignore_index=True)
                     dim_table['id'] = range(0, len(dim_table))
-                    set_fk(df, dim_table, dim_fk)
+                    df = set_fk(df, dim_table, dim_fk)
 
                 else:
                     dim_table['id'] = range(0, len(dim_table))
@@ -75,17 +84,38 @@ try:
                         dim_table = conver_to_bool_cols(dim_table)
 
                 dim_table.drop(columns=dim_fk, inplace=True)
-                dim_table.to_sql(table_name, connection, index=False,
-                               schema=schema_name, if_exists="append")
-                logging.info('Successful creation!')
+                dim_table.to_sql(
+                    table_name,
+                    connection,
+                    index=False,
+                    schema=schema_name,
+                    if_exists='append',
+                )
+            logging.info('Successful creation of dimensional tables.')
 
             logging.info('Creating loans fact table...')
-            df_loans = df.loc[:, ["loan_id", "loan_amount", "loan_amount_term",
-                                  "customer_id", "property_area_id", "prediction_id"]]
-            df_loans.to_sql(loans_table, connection, index=False,
-                            schema=schema_name, if_exists="append")
+
+            df_loans = df.loc[:,
+                [
+                    'loan_id',
+                    'loan_amount',
+                    'loan_amount_term',
+                    'customer_id',
+                    'property_area_id',
+                    'prediction_id',
+                ],
+            ]
+
+            df_loans.to_sql(
+                loans_table,
+                connection,
+                index=False,
+                schema=schema_name,
+                if_exists='append',
+            )
+
             logging.info('Successful creation!')
-            
+
 
 except SQLAlchemyError as error:
-    logging.error(f"Error when ingesting raw data: {error}")
+    logging.error(f'Error when ingesting raw data: {error}')

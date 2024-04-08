@@ -6,7 +6,6 @@ RUN mkdir /root/.kaggle
 
 ADD ./docker-images/dataset_puller/source .
 COPY ./kaggle.json /root/.kaggle/kaggle.json
-COPY ./.env ./.env 
 
 RUN pip install -r requirements.txt
 RUN chmod 600 /root/.kaggle/kaggle.json

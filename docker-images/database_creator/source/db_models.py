@@ -1,5 +1,14 @@
-from sqlalchemy import (Boolean, Column, ForeignKeyConstraint, Integer,
-                        MetaData, Sequence, String, Table)
+import logging
+from sqlalchemy import (
+    Boolean,
+    Column,
+    ForeignKeyConstraint,
+    Integer,
+    MetaData,
+    Sequence,
+    String,
+    Table,
+)
 
 
 def create_tables(schema_name):
@@ -10,10 +19,8 @@ def create_tables(schema_name):
             'property_area',
             metadata,
             Column(
-                'id',
-                Integer,
-                Sequence('property_id_seq', start=1, increment=1),
-                nullable=False,
+                'property_area_id',
+                String(255),
                 primary_key=True,
             ),
             Column('property_area', String(10), nullable=False),
@@ -23,11 +30,10 @@ def create_tables(schema_name):
             'customers',
             metadata,
             Column(
-                'id',
-                Integer,
+                'customer_id',
+                String(255),
                 nullable=False,
                 primary_key=True,
-                autoincrement=True,
             ),
             Column('gender', String(6), nullable=True),
             Column('married', Boolean, nullable=True),
@@ -45,26 +51,26 @@ def create_tables(schema_name):
             Column('loan_id', String(8), nullable=False, primary_key=True),
             Column('loan_amount', Integer, nullable=True),
             Column('loan_amount_term', Integer, nullable=True),
-            Column('customer_id', Integer, nullable=False),
+            Column('customer_id', String(255), nullable=False),
             ForeignKeyConstraint(
                 ['customer_id'],
-                ['customers.id'],
+                ['customers.customer_id'],
                 name='fk_customer_id',
                 onupdate='CASCADE',
                 ondelete='SET NULL',
             ),
-            Column('property_area_id', Integer, nullable=False),
+            Column('property_area_id', String(255), nullable=False),
             ForeignKeyConstraint(
                 ['property_area_id'],
-                ['property_area.id'],
+                ['property_area.property_area_id'],
                 name='fk_property_area',
                 onupdate='CASCADE',
                 ondelete='SET NULL',
             ),
-            Column('prediction_id', Integer, nullable=True),
+            Column('prediction_id', String(255), nullable=True),
             ForeignKeyConstraint(
                 ['prediction_id'],
-                ['loan_status_prediction.id'],
+                ['loan_status_prediction.prediction_id'],
                 name='fk_prediction_results',
                 onupdate='CASCADE',
                 ondelete='SET NULL',
@@ -74,7 +80,7 @@ def create_tables(schema_name):
         Table(
             'loan_status_prediction',
             metadata,
-            Column('id', Integer, primary_key=True),
+            Column('prediction_id', String(255), primary_key=True),
             Column('loan_status', String(1), nullable=True),
         )
 

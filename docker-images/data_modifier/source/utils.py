@@ -24,14 +24,16 @@ def rename_columns(df: pd.DataFrame):
 
 
 def conver_to_bool_cols(df: pd.DataFrame):
-    df['married'].replace('Yes', True, inplace=True)
-    df['married'].replace('No', False, inplace=True)
-    df['self_employed'].replace('Yes', True, inplace=True)
-    df['self_employed'].replace('No', False, inplace=True)
-    df['credit_history'].replace(1.0, True, inplace=True)
-    df['credit_history'].replace(0.0, False, inplace=True)
-    df['graduated'].replace('Graduate', True, inplace=True)
-    df['graduated'].replace('Not Graduate', False, inplace=True)
+    df['married'] = df['married'].replace(['Yes', 'No'], [True, False])
+    df['self_employed'] = df['self_employed'].replace(
+        ['Yes', 'No'], [True, False]
+    )
+    df['credit_history'] = df['credit_history'].replace(
+        [1.0, 0.0], [True, False]
+    )
+    df['graduated'] = df['graduated'].replace(
+        ['Graduate', 'Not Graduate'], [True, False]
+    )
     return df
 
 

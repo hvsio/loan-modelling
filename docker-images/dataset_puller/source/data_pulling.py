@@ -1,5 +1,8 @@
 import logging
 import os
+import sys
+import time
+import shutil
 
 import pandas as pd
 from dotenv import find_dotenv, load_dotenv
@@ -7,7 +10,15 @@ from kaggle.api.kaggle_api_extended import KaggleApi
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 
+logger = logging.getLogger()
+logging.basicConfig(
+    stream=sys.stdout, level=logging.INFO, format='%(message)s'
+)
+
 load_dotenv(find_dotenv())
+timestamp = time.time()
+logger.info(timestamp)
+
 
 db_url = (
     f"postgresql://{os.environ.get('db_user')}"
@@ -18,8 +29,6 @@ db_url = (
 )
 
 try:
-    logging.info('Downloading dataset...')
-
     api = KaggleApi()
     api.authenticate()
     api.dataset_download_files(
@@ -33,7 +42,8 @@ try:
         and 'loan-train.csv' in downloaded_files
     )
 except Exception as error:
-    logging.error(f"Couldn't pull the dataset: {error}")
+    logger.error(f"Couldn't pull the dataset: {error}")
+    exit(1)
 
 
 try:
@@ -41,7 +51,9 @@ try:
     df_test = pd.read_csv('/tmp/data/loan-test.csv')
     df_train = pd.read_csv('/tmp/data/loan-train.csv')
 
-    logging.info('Ingesting dataset into lakehouses...')
+    df_test['insertion_date'] = timestamp
+    df_train['insertion_date'] = timestamp
+
     with engine.begin() as connection:
         df_test.to_sql(
             name=os.environ.get('lakehouse_test_name'),
@@ -55,4 +67,9 @@ try:
         )
         logging.info('Success.')
 except SQLAlchemyError as error:
-    print(f'Error when ingesting raw data: {error}')
+    logger.error(f'Error when ingesting raw data: {error}')
+    exit(1)
+
+finally:
+    if os.path.exists('/tmp/data'):
+        shutil.rmtree('/tmp/data')

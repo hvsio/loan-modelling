@@ -1,0 +1,19 @@
+minikube start
+
+kubectl apply --namespace airflow -f kubernetes/sc.yml
+kubectl apply --namespace airflow -f kubernetes/logs-pv.yml
+kubectl apply --namespace airflow -f kubernetes/dags-pv.yml
+kubectl apply --namespace airflow -f kubernetes/dags-pvc.yml
+kubectl apply --namespace airflow -f kubernetes/logs-pvc.yml
+
+kubectl create configmap db-configs --from-env-file=./airflow/dags/.env --namespace airflow
+
+helm upgrade --install airflow apache-airflow/airflow \
+--namespace airflow \
+--set executor=KubernetesExecutor \
+--set dags.persistence.enabled=true \
+--set dags.persistence.existingClaim=local-dags \
+--set dags.persistence.storageClassName=local-storage \
+--set logs.persistence.enabled=true \
+--set logs.persistence.storageClassName=local-storage \
+--set logs.persistence.existingClaim=local-logs

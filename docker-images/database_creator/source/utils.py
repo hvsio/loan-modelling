@@ -1,11 +1,13 @@
 import logging
 import os
+import sys
 from contextlib import contextmanager
 
 from sqlalchemy import create_engine
-from sqlalchemy.engine.base import Connection, Engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy_utils import create_database, database_exists
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
 @contextmanager

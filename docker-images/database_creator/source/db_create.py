@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 
 from db_models import create_tables
 from dotenv import find_dotenv, load_dotenv
@@ -9,7 +10,10 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.schema import CreateSchema
 from utils import get_db_connection
 
-logger = logging.getLogger('postgres_logger')
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logger = logging.getLogger()
+handler = logging.StreamHandler()
+logger.addHandler(handler)
 load_dotenv(find_dotenv())
 
 
@@ -18,6 +22,7 @@ def create_db(engine: Engine, conn: Connection, type: str):
     try:
         if not schemaname:
             logger.error(f'Missing {type} schema name.')
+            exit(1)
 
         logger.info(f'Schema of choice: {schemaname}')
         if not inspect(conn).has_schema(schema_name=schemaname):
@@ -32,6 +37,7 @@ def create_db(engine: Engine, conn: Connection, type: str):
     except SQLAlchemyError as e:
         logger.error(f'Error establishing the DB: {e}')
         conn.rollback()
+        exit(1)
 
 
 with get_db_connection(True) as (engine, conn):
@@ -40,7 +46,7 @@ with get_db_connection(True) as (engine, conn):
 
         logger.info('Creating train schema...')
         create_db(engine, conn, 'train')
-        logger.info('Creating testschema...')
+        logger.info('Creating test schema...')
         create_db(engine, conn, 'test')
 
         conn.commit()
@@ -48,3 +54,4 @@ with get_db_connection(True) as (engine, conn):
     except SQLAlchemyError as e:
         logger.error(f'Error establishing databses: {e}')
         conn.rollback()
+        exit(1)

@@ -35,10 +35,10 @@ Script ingesting data from the lakehouse into the dedicated schemas in test and 
 ## DAG
 #### loan_predictor.py
 Main DAG mimicking the whole demo workflow with Docker operators. 
-1. Sets up a database programmatically. ([database_creator](#database_creator))
-2. Downloads two CSV files from Kaggle using a Dockerized Python script and saves the results to postgresql lake. ([dataset_puller](#dataset_puller))
+1. Sets up a database programmatically. ([database_creator](#h4siodatabase_creator31))
+2. Downloads two CSV files from Kaggle using a Dockerized Python script and saves the results to postgresql lake. ([dataset_puller](#h4siodataset_puller31))
 3. Transforms the data into a star schema. #DM
-4. Writes the data to the database into train and test tables. ([data_modifier](#data_modifier))
+4. Writes the data to the database into train and test tables. ([data_modifier](#h4siodata_modifier31))
 
 ## Configs
 Additional kaggle config to use the SDK for pulling the dataset.

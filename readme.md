@@ -21,15 +21,15 @@ Test data is fetched from [Kaggle repository](https://www.kaggle.com/datasets/vi
 ## Docker images used in the main DAG
 All images are placed in `/docker-images` folder. All of them follow the concept of copy-pasting the source code and additional env files into the container and execute appropriate scripts on container start.
 
-#### h4sio/database_creator3.1:1.0.2
+#### h4sio/database_creator3.1
 Creates necessary database, schema, tables and their definitions with SQLAlchemy. Precisely - a schema for "test" and "train" with the same tables definitions within it.
 
-#### h4sio/dataset_puller3.1:1.0.2
+#### h4sio/dataset_puller3.1
 Downloads Kaggle dataset and temporarily saves it. Adds a timestamp to the pulled dataset to allow incremental ingestion. Timestamp is passed between tasks through Xcom.
 
 Raw dataset is ingested into simplistic train and test data lakes - default, public schema of the same postgres instance. 
 
-#### h4sio/data_modifier3.1:1.0.2
+#### h4sio/data_modifier3.1
 Script ingesting data from the lakehouse into the dedicated schemas in test and train warehouse tables in postgresql instance. It is meant as the transformation step, where column names are unified, duplicates dropped, data types optimized. Most importantly it normalizes the raw data in dimenstion and fact tables. Populates 3 dimension tables and one fact table per schema and connects them with foreign keys. 
 
 ## DAG

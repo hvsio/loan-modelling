@@ -1,8 +1,8 @@
 import logging
 import os
-import sys
-import time
 import shutil
+import sys
+from datetime import datetime
 
 import pandas as pd
 from dotenv import find_dotenv, load_dotenv
@@ -16,7 +16,8 @@ logging.basicConfig(
 )
 
 load_dotenv(find_dotenv())
-timestamp = time.time()
+timestamp = datetime.now()
+timestamp = timestamp.strftime('%d%m%Y%H%M')
 logger.info(timestamp)
 
 
@@ -51,8 +52,8 @@ try:
     df_test = pd.read_csv('/tmp/data/loan-test.csv')
     df_train = pd.read_csv('/tmp/data/loan-train.csv')
 
-    df_test['insertion_date'] = timestamp
-    df_train['insertion_date'] = timestamp
+    df_test['insertion_date'] = int(timestamp)
+    df_train['insertion_date'] = int(timestamp)
 
     with engine.begin() as connection:
         df_test.to_sql(

@@ -1,19 +1,13 @@
+import argparse
 import logging
 import os
 import sys
-import argparse
-import json
 
 import pandas as pd
 from dotenv import find_dotenv, load_dotenv
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
-from utils import (
-    conver_to_bool_cols,
-    prepare_id_columns,
-    rename_columns,
-    set_fk,
-)
+from utils import conver_to_bool_cols, prepare_id_columns, rename_columns
 
 load_dotenv(find_dotenv())
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -23,6 +17,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-t', '--timestamp')
 args = parser.parse_args()
 timestamp = args.timestamp
+
 assert timestamp and all(
     partial.isnumeric() for partial in timestamp.split('.')
 )
@@ -73,8 +68,6 @@ try:
 
         for type in ['train', 'test']:
 
-            logger.info(f'Attempting creating star schema in {type} dataset.')
-
             schema_name = os.environ.get(f'schema_name_{type}')
             lakehouse_name = os.environ.get(f'lakehouse_{type}_name')
 
@@ -91,9 +84,10 @@ try:
             df = prepare_id_columns(df, type)
             df = rename_columns(df)
             df = df.drop_duplicates(subset=['loan_id'], keep='first')
+            df['loan_id'] = [f'{index}_{timestamp}' for index in df['loan_id']]
 
             for table_name, data in dimension_tables.items():
-                logger.info(f'Creating {table_name} dimension table...')
+                logger.info(f'Ingesting {table_name} dimension table...')
 
                 dim_table = df.loc[:, data['columns']]
                 dim_fk = data['fk']
@@ -110,13 +104,26 @@ try:
                         how='left',
                     )
                     dim_table = dim_table.set_index(dim_fk)
+                    db_status = pd.read_sql(
+                        text(
+                            f'SELECT * FROM {schema_name}.{table_name}'
+                        ),
+                        connection,
+                    )
+                    if len(db_status) != 0: 
+                        continue
+                    exit()
                 elif table_name == loan_status_table:
-                    dim_table[dim_fk] = [f'LSTAT_{i}' for i in dim_table.index]
+                    dim_table[dim_fk] = [
+                        f'LSTAT_{i}_{timestamp}' for i in dim_table.index
+                    ]
                     dim_table = dim_table.set_index(dim_fk)
                     df[dim_fk] = dim_table.index
                 elif table_name == customer_table:
                     dim_table = conver_to_bool_cols(dim_table)
-                    dim_table[dim_fk] = [f'LCUST_{i}' for i in dim_table.index]
+                    dim_table[dim_fk] = [
+                        f'LCUST_{i}_{timestamp}' for i in dim_table.index
+                    ]
                     dim_table = dim_table.set_index(dim_fk)
                     df[dim_fk] = dim_table.index
 
@@ -130,7 +137,7 @@ try:
                 )
             logger.info('Successful creation of dimensional tables.')
 
-            logger.info('Creating loans fact table...')
+            logger.info('Ingesting loans fact table...')
 
             df_loans = df.loc[
                 :,
@@ -152,7 +159,7 @@ try:
                 if_exists='append',
             )
 
-            logger.info('Successful creation!')
+            logger.info('Successful ingestion')
 
 
 except SQLAlchemyError as error:

@@ -4,8 +4,7 @@ Demo of creditworthy assessment models for FinTech companies.
 ## Description
 This project focuses on examplary workflow of creditworthy assessment models. It is implemented using Apache Airflow, Docker, python and postgresql as tech stack. The core of the demo is a singular DAG utilizing DockerOperator and project-specific docker images published on DockerHub. Their blueprints are available in `/docker-images` folder.
 
-Processed data is divided into two star
- schemas - train and test. Each schema contains the same tables meant for test and train data coming from Kaggle repository. 
+Processed data is divided into two star schemas - train and test. Each schema contains the same tables meant for test and train data coming from Kaggle repository. 
 
 ## Data
 Test data is fetched from [Kaggle repository](https://www.kaggle.com/datasets/vikasukani/loan-eligible-dataset). 
@@ -31,7 +30,7 @@ Downloads Kaggle dataset and temporarily saves it. Adds a timestamp to the pulle
 Raw dataset is ingested into simplistic train and test data lakes - default, public schema of the same postgres instance. 
 
 #### h4sio/data_modifier3.1:1.0.2
-Script ingesting data from the lakehouse into the dedicated schemas in test and train warehouse tables in postgresql instance. Creates 3 dimension tables and one fact table per schema and connects them with foreign keys.
+Script ingesting data from the lakehouse into the dedicated schemas in test and train warehouse tables in postgresql instance. It is meant as the transformation step, where column names are unified, duplicates dropped, data types optimized. Most importantly it normalizes the raw data in dimenstion and fact tables. Populates 3 dimension tables and one fact table per schema and connects them with foreign keys. 
 
 ## DAG
 #### loan_predictor.py

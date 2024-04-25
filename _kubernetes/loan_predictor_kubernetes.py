@@ -2,13 +2,11 @@ import logging
 import os
 from datetime import datetime, timedelta
 
-from airflow.providers.cncf.kubernetes.operators.pod import (
-    KubernetesPodOperator,
-)
-from kubernetes.client import models as k8s
-from kubernetes import client, config
-
+from airflow.providers.cncf.kubernetes.operators.pod import \
+    KubernetesPodOperator
 from dotenv import find_dotenv, load_dotenv
+from kubernetes import client, config
+from kubernetes.client import models as k8s
 
 from airflow import DAG
 

@@ -1,14 +1,7 @@
 import logging
-from sqlalchemy import (
-    Boolean,
-    Column,
-    ForeignKeyConstraint,
-    Integer,
-    MetaData,
-    Sequence,
-    String,
-    Table,
-)
+
+from sqlalchemy import (Boolean, Column, ForeignKeyConstraint, Integer,
+                        MetaData, Sequence, String, Table)
 
 
 def create_tables(schema_name):
@@ -48,7 +41,7 @@ def create_tables(schema_name):
         Table(
             'loans',
             metadata,
-            Column('loan_id', String(8), nullable=False, primary_key=True),
+            Column('loan_id', String(255), nullable=False, primary_key=True),
             Column('loan_amount', Integer, nullable=True),
             Column('loan_amount_term', Integer, nullable=True),
             Column('customer_id', String(255), nullable=False),

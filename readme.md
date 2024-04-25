@@ -2,12 +2,17 @@
 Demo of creditworthy assessment models for FinTech companies.
 
 ## Description
-This project focuses on examplary workflow of creditworthy assessment models. It is implemented using Apache Airflow, Docker, python and postgresql as tech stack. The core of the demo is a singular DAG utilizing DockerOperator and project-specific docker images published on DockerHub. Their blueprints are available in `/docker-images` folder.
+This project focuses on examplary workflow of creditworthy assessment models. It is implemented using Apache Airflow, Docker, python and PostgreSQL as tech stack. The core of the demo is a singular DAG utilizing DockerOperator and project-specific docker images published on DockerHub. Their blueprints are available in `/docker-images` folder.
 
-Processed data is divided into two star schemas - train and test. Each schema contains the same tables meant for test and train data coming from Kaggle repository. 
 
 ## Data
-Test data is fetched from [Kaggle repository](https://www.kaggle.com/datasets/vikasukani/loan-eligible-dataset). 
+Test data is fetched from [Kaggle repository](https://www.kaggle.com/datasets/vikasukani/loan-eligible-dataset). Ingestion is done to PostgreSQL, where data is divided into two star schemas - train and test. Each schema contains the same tables meant for test and train data coming from Kaggle repository.
+[image](/assets/erd.png) 
+
+
+## Setup
+1. Create config files `postgres.env`, `kaggle.json` and `/airflow/dags/.env` from provided examples.
+2. Run `docker-compose up` in the root of this project. 
 
 ## Project structure
 - `airflow` - folder containing Airflow assets
@@ -16,7 +21,7 @@ Test data is fetched from [Kaggle repository](https://www.kaggle.com/datasets/vi
 
 - `postgres.env.example` - postgres credentials config example
 - `kaggle.json.example` - kaggle credentials config example
-- `_kubernetes` - folder holding an attempt in deploying a local airflow cluster on minikube. It also containes a version of the dag using KubenetesPodOperator instead of DockerOperator (which is used in the original one under `airflow` folder).
+- `_kubernetes` - folder holding an abandoned attempt in deploying a local airflow cluster on minikube. It also containes a version of the dag using KubenetesPodOperator instead of DockerOperator (which is used in the original one under `airflow` folder). Last issue encountered was `kubernetes.config.config_exception.ConfigException: Invalid kube-config file. No configuration found.` thrown when starting pod with KubernetesPodOperator.
 
 ## Docker images used in the main DAG
 All images are placed in `/docker-images` folder. All of them follow the concept of copy-pasting the source code and additional env files into the container and execute appropriate scripts on container start.
@@ -30,7 +35,7 @@ Downloads Kaggle dataset and temporarily saves it. Adds a timestamp to the pulle
 Raw dataset is ingested into simplistic train and test data lakes - default, public schema of the same postgres instance. 
 
 #### h4sio/data_modifier3.1
-Script ingesting data from the lakehouse into the dedicated schemas in test and train warehouse tables in postgresql instance. It is meant as the transformation step, where column names are unified, duplicates dropped, data types optimized. Most importantly it normalizes the raw data in dimenstion and fact tables. Populates 3 dimension tables and one fact table per schema and connects them with foreign keys. 
+Script ingesting data from the lakehouse into the dedicated schemas in test and train warehouse tables in PostgreSQL instance. It is meant as the transformation step, where column names are unified, duplicates dropped, data types optimized. Most importantly it normalizes the raw data in dimenstion and fact tables. Populates 3 dimension tables and one fact table per schema and connects them with foreign keys. 
 
 ## DAG
 #### loan_predictor.py
@@ -42,4 +47,4 @@ Main DAG mimicking the whole demo workflow with Docker operators.
 
 ## Configs
 - Additional kaggle config to use the SDK for pulling the dataset.
-- Additional postgresql config to set a predefined user.
+- Additional PostgreSQL config to set a predefined user.

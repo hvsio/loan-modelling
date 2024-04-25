@@ -7,7 +7,7 @@ This project focuses on examplary workflow of creditworthy assessment models. It
 
 ## Data
 Test data is fetched from [Kaggle repository](https://www.kaggle.com/datasets/vikasukani/loan-eligible-dataset). Ingestion is done to PostgreSQL, where data is divided into two star schemas - train and test. Each schema contains the same tables meant for test and train data coming from Kaggle repository.
-[image](/assets/erd.png) 
+![image](/assets/erd.png) 
 
 
 ## Setup

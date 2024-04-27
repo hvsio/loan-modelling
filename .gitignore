@@ -4,3 +4,5 @@ postgres.env
 kaggle.json
 todo.md
 logs
+docker-images/images_builder.sh
+.DS_store

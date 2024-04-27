@@ -4,7 +4,9 @@ WORKDIR /app
 RUN mkdir /tmp/data
 RUN mkdir /root/.kaggle 
 
-ADD ./docker-images/dataset_puller/source .
+ADD ./docker-images/dataset_puller .
+
+COPY ./docker-images/constants.py .
 COPY ./kaggle.json /root/.kaggle/kaggle.json
 
 RUN pip install -r requirements.txt

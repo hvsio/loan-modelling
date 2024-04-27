@@ -1,6 +1,4 @@
-import logging
 import os
-import sys
 from datetime import datetime, timedelta
 
 from airflow.operators.docker_operator import DockerOperator
@@ -28,7 +26,7 @@ with DAG(
     catchup=False,
 ) as dag:
 
-    t1 = DockerOperator(
+    database_creator = DockerOperator(
         task_id='database_creator',
         image='h4sio/database_creator3.1:1.0.3',
         mount_tmp_dir=False,
@@ -36,7 +34,7 @@ with DAG(
         command='python3 db_create.py',
     )
 
-    t2 = DockerOperator(
+    dataset_puller = DockerOperator(
         task_id='dataset_puller',
         image='h4sio/dataset_puller3.1:1.0.4',
         mount_tmp_dir=False,
@@ -45,7 +43,7 @@ with DAG(
         command='python3 data_pulling.py',
     )
 
-    t3 = DockerOperator(
+    data_modifier = DockerOperator(
         task_id='data_modifier',
         image='h4sio/data_modifier3.1:1.0.4',
         mount_tmp_dir=False,
@@ -53,4 +51,4 @@ with DAG(
         command='python3 data_modifier.py -t "{{ ti.xcom_pull(task_ids="dataset_puller")[0] }}"',
     )
 
-t1 >> t2 >> t3
+database_creator >> dataset_puller >> data_modifier

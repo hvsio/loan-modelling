@@ -1,17 +1,15 @@
-import logging
-import os
-import sys
 from contextlib import contextmanager
 
 from sqlalchemy import create_engine
+from sqlalchemy.engine.base import Connection, Engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy_utils import create_database, database_exists
-
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+from constants import get_db_url, get_logger
+from collections.abc import Generator
 
 
 @contextmanager
-def get_db_connection(force_create: False):   # -> tuple[Engine, Connection]:
+def get_db_connection(force_create: False) -> Generator[Engine, Connection]:
     """First creation of job database based on .env values.
     As a context manager allow to execute statements with created engine and connection
     and ensures disposal of resources afterwards.
@@ -24,13 +22,8 @@ def get_db_connection(force_create: False):   # -> tuple[Engine, Connection]:
         Connection: database connection
     """
 
-    db_url = (
-        f"postgresql://{os.environ.get('db_user')}"
-        f":{os.environ.get('db_pass')}"
-        f"@{os.environ.get('db_host')}"
-        f":{str(os.environ.get('db_port'))}"
-        f"/{os.environ.get('db_name')}"
-    )
+    db_url = get_db_url()
+    logger = get_logger()
 
     if not database_exists(db_url):
         if force_create:
@@ -43,7 +36,7 @@ def get_db_connection(force_create: False):   # -> tuple[Engine, Connection]:
         conn = engine.connect()
         yield engine, conn
     except (SQLAlchemyError, ValueError) as e:
-        logging.error(
+        logger.error(
             f'Encountered error when establishing db environment: {e}'
         )
     finally:

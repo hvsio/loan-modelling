@@ -1,10 +1,25 @@
 import logging
 
-from sqlalchemy import (Boolean, Column, ForeignKeyConstraint, Integer,
-                        MetaData, Sequence, String, Table)
+from sqlalchemy import (
+    Boolean,
+    Column,
+    ForeignKeyConstraint,
+    Integer,
+    MetaData,
+    String,
+    Table,
+)
 
 
-def create_tables(schema_name):
+def create_tables(schema_name: str) -> MetaData:
+    """Defines necessary table in the desired schema.
+
+    Args:
+        schema_name (str): name of test or train schema
+
+    Returns:
+        MetaData: metadata object of the desired schema
+    """
     try:
         metadata = MetaData(schema=schema_name)
 

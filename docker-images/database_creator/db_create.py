@@ -1,23 +1,24 @@
-import logging
 import os
-import sys
 
 from db_models import create_tables
-from dotenv import find_dotenv, load_dotenv
 from sqlalchemy import inspect
 from sqlalchemy.engine.base import Connection, Engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.schema import CreateSchema
 from utils import get_db_connection
+from constants import get_logger
 
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-logger = logging.getLogger()
-handler = logging.StreamHandler()
-logger.addHandler(handler)
-load_dotenv(find_dotenv())
+logger = get_logger()
 
 
-def create_db(engine: Engine, conn: Connection, type: str):
+def create_db(engine: Engine, conn: Connection, type: str) -> None:
+    """Creates a database, schema and necessary tables.
+
+    Args:
+        engine (Engine): RDBMS engine
+        conn (Connection): engine's connection
+        type (str): "test" or "train"
+    """
     schemaname = os.environ.get(f'schema_name_{type}')
     try:
         if not schemaname:
@@ -40,18 +41,19 @@ def create_db(engine: Engine, conn: Connection, type: str):
         exit(1)
 
 
-with get_db_connection(True) as (engine, conn):
-    try:
-        logger.info(f'Established connection with db engine: {engine}')
+if __name__ == '__main__':
+    with get_db_connection(True) as (engine, conn):
+        try:
+            logger.info(f'Established connection with db engine: {engine}')
 
-        logger.info('Creating train schema...')
-        create_db(engine, conn, 'train')
-        logger.info('Creating test schema...')
-        create_db(engine, conn, 'test')
+            logger.info('Creating train schema...')
+            create_db(engine, conn, 'train')
+            logger.info('Creating test schema...')
+            create_db(engine, conn, 'test')
 
-        conn.commit()
-        logger.info('Success.')
-    except SQLAlchemyError as e:
-        logger.error(f'Error establishing databses: {e}')
-        conn.rollback()
-        exit(1)
+            conn.commit()
+            logger.info('Success.')
+        except SQLAlchemyError as e:
+            logger.error(f'Error establishing databses: {e}')
+            conn.rollback()
+            exit(1)

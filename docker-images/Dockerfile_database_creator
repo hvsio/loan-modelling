@@ -1,7 +1,9 @@
 FROM python:3.8
 WORKDIR /app
 
-ADD ./docker-images/database_creator/source .
+ADD ./docker-images/database_creator .
+
+COPY ./docker-images/constants.py .
 
 RUN pip install -r requirements.txt
 
